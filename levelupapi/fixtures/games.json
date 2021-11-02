@@ -1,0 +1,26 @@
+[
+    {
+        "model": "levelupapi.game",
+        "pk": 1,
+        "fields": {
+            "game_type": 1,
+            "title": "Checkers",
+            "maker": "Steve",
+            "gamer": 1,
+            "number_of_players": 2,
+            "skill_level": 1
+        }
+    },
+    {
+        "model": "levelupapi.game",
+        "pk": 2,
+        "fields": {
+            "game_type": 3,
+            "title": "New World",
+            "maker": "Amazon",
+            "gamer": 1,
+            "number_of_players": 1000,
+            "skill_level": 5
+        }
+    }
+]
