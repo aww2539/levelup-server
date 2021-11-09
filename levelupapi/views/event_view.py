@@ -28,9 +28,29 @@ class EventView(ViewSet):
             return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
 
     def list(self, request):
+        """Handle GET requests to events resource
+
+        Returns:
+            Response -- JSON serialized list of events
+        """
+        # Get the current authenticated user
+        gamer = Gamer.objects.get(user=request.auth.user)
         events = Event.objects.all()
-        event_serializer = EventSerializer(events, many=True)
-        return Response(event_serializer.data)
+
+        # Set the `joined` property on every event
+        for event in events:
+            # Check to see if the gamer is in the attendees list on the event
+            event.joined = gamer in event.attendees.all()
+
+        # Support filtering events by game
+        game = self.request.query_params.get('gameId', None)
+        if game is not None:
+            events = events.filter(game__id=type)
+
+        serializer = EventSerializer(
+            events, many=True, context={'request': request})
+        return Response(serializer.data)
+
 
     def retrieve(self, request, pk):
         event = Event.objects.get(pk=pk)
@@ -104,8 +124,12 @@ class GamerSerializer(serializers.ModelSerializer):
         fields = ['user']
 
 class EventSerializer(serializers.ModelSerializer):
-    organizer = GamerSerializer()
+    """JSON serializer for events"""
+    # if you have other variables outside the Meta class just add this line
+    joined = serializers.BooleanField(required=False)
 
     class Meta:
         model = Event
-        fields = ['id', 'organizer', 'game', 'date', 'time', 'description']
+        fields = ('id', 'game', 'organizer',
+                'description', 'date',
+                'time', 'attendees', 'joined')

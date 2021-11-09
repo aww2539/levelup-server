@@ -21,12 +21,15 @@ from levelupapi.views import register_user, login_user
 from levelupapi.views import GameTypeView
 from levelupapi.views.event_view import EventView
 from levelupapi.views.game import GameView
+from levelupapi.views.profile import user_profile
 
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'gametypes', GameTypeView, 'gametype')
 router.register(r'games', GameView, 'game')
 router.register(r'events', EventView, 'event')
+
+
 
 urlpatterns = [
     # Requests to http://localhost:8000/register will be routed to the register_user function
@@ -36,4 +39,5 @@ urlpatterns = [
     path('api-auth', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
+    path('profile', user_profile),
 ]
