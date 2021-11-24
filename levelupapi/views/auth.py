@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -64,4 +65,4 @@ def register_user(request):
     token = Token.objects.create(user=gamer.user)
     # Return the token to the client
     data = { 'token': token.key }
-    return Response(data)
+    return Response(data, status=status.HTTP_201_CREATED)

@@ -1,11 +1,12 @@
 """View module for handling requests about games"""
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from rest_framework import status
 from django.http import HttpResponseServerError
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers
 from levelupapi.models import Game, GameType, Gamer
+from django.contrib.auth.models import User
 
 
 class GameView(ViewSet):
@@ -42,7 +43,7 @@ class GameView(ViewSet):
                 game_type=game_type
             )
             serializer = GameSerializer(game, context={'request': request})
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         # If anything went wrong, catch the exception and
         # send a response with a 400 status code to tell the
@@ -135,12 +136,29 @@ class GameView(ViewSet):
             games, many=True, context={'request': request})
         return Response(serializer.data)
 
+
+class UserSerializer(serializers.ModelSerializer):
+    """JSON serializer for gamer's related Django user"""
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name', 'username')
+
+
+class GamerSerializer(serializers.ModelSerializer):
+    """JSON serializer for gamers"""
+    user = UserSerializer(many=False)
+
+    class Meta:
+        model = Gamer
+        fields = ('id', 'user', 'bio')
+
 class GameSerializer(serializers.ModelSerializer):
     """JSON serializer for games
 
     Arguments:
         serializer type
     """
+    gamer = GamerSerializer()
     class Meta:
         model = Game
         fields = ('id', 'title', 'maker', 'number_of_players', 'skill_level', 'game_type', 'gamer')
